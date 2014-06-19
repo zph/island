@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+require 'island'
+
+repo = "fixtures/infect/"
+# Files and order
+globs = [
+          "#{repo}vendor/**/lib/pmap.rb",
+          "#{repo}lib/infect/colorize.rb",
+          "#{repo}lib/**/*.rb",
+          "#{repo}bin/infect",
+        ]
+
+files = globs.flat_map do |g|
+  Dir.glob(g)
+end
+
+pmap_reject    = ->(line){ !!line[/require 'pmap/] }
+self_reference = ->(line){ !! (line[/require 'infect/] || line[/\.\.\/lib\/infect/]) }
+rejects = [Island::Plugins::SHABANG, pmap_reject, self_reference]
+
+puts Island::Creator.call(files, rejects: rejects)
