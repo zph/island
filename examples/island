@@ -17,6 +17,6 @@ end
 
 pmap_reject    = ->(line){ !!line[/require 'pmap/] }
 self_reference = ->(line){ !! (line[/require 'infect/] || line[/\.\.\/lib\/infect/]) }
-rejects = [Island::Plugins::SHABANG, pmap_reject, self_reference]
+reject_lines = [Island::Plugins::SHABANG, pmap_reject, self_reference]
 
-puts Island::Creator.call(files, rejects: rejects)
+puts Island::Creator.call(files, rejects: reject_lines)

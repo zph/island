@@ -6,58 +6,50 @@ module Island
       files = Set.new(files)
       rejects = opts.fetch(:rejects)    { Plugins::REJECTIONS }
       mods = opts.fetch(:modifications) { Plugins::MODIFICATIONS }
-      i = new(files)
-      h = i.read_content
-      h = i.alter_each_file(h)
+      creator = new(files)
+      files_hash = creator.read_content
+      files_hash = creator.alter_each_file(files_hash)
       ## process each file
-      c = i.blend_files(h)
-      r = i.requires(c)
+      content = creator.blend_files(files_hash)
+      r = creator.requires(content)
 
-      i.ensure_dependencies(r, files)
+      creator.ensure_dependencies(r, files)
 
-      c = i.reject_line(c, rejects)
-      c = i.modify_lines(c, mods)
-      i.join_lines(c)
+      content = creator.reject_line(content, rejects)
+      content = creator.modify_lines(content, mods)
+      creator.join_lines(content)
     end
 
-    def alter_each_file(h)
+    def alter_each_file(hash)
       # Act on the array of lines of each file
       # ie prepend ==Start of filename / ==End of filename
       # h.map do |k,v|
-
       # end
-      h
+
+      hash
     end
 
-    def blend_files(h)
-      @content = h.values.flatten
-    end
-
-    def self.requires(files, opts={})
-      # TODO: temporary
-      i       = new(files)
-      c       = i.read_content
-      r       = i.requires(c)
-      i.ensure_dependencies(r, files)
+    def blend_files(hash)
+      @content = hash.values.flatten
     end
 
     def ensure_dependencies(libs, files)
       to_include    = libs.select { |k,v| v == false }.keys
-      to_include.flat_map do |l|
-        found = files.grep(/#{l}/)
+      to_include.flat_map do |line|
+        found = files.grep(/#{line}/)
         if found.empty?
-          warn "Please include #{l} in files list"
+          warn "Please include #{line} in files list"
           exit(1)
         end
         found
       end
     end
 
-    def requires(c)
-      r = c.select { |i| i[/^\s?require/]}
-           .map { |o| o[/['"](.*)['"]/]; $1 }[0..6]
-      h = r.map { |o| stdlib?(o) }.flatten
-      Hash[*h]
+    def requires(content)
+      reqs = content.select { |i| i[/^\s?require/]}
+                 .map { |o| o[/['"](.*)['"]/]; $1 }[0..6]
+      hash = reqs.map { |o| stdlib?(o) }.flatten
+      Hash[*hash]
     end
 
     def stdlib?(lib)
@@ -84,13 +76,13 @@ module Island
 
     def reject_line(c, plugins = Plugins::REJECTIONS)
       # plugins must eval to true for it to be removed
-      c = plugins.each_with_object(c) do |b, obj|
+      plugins.each_with_object(c) do |b, obj|
         obj.reject!{ |l| b.call(l) }
       end
     end
 
     def modify_lines(c, plugins = Plugins::MODIFICATIONS)
-      c = plugins.each_with_object(c) do |b, obj|
+      plugins.each_with_object(c) do |b, obj|
         b.call(obj)
       end
     end
