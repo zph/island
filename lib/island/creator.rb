@@ -77,14 +77,14 @@ module Island
 
     def reject_line(content, plugins = Plugins::REJECTIONS)
       # plugins must eval to true for it to be removed
-      plugins.each_with_object(content) do |b, obj|
-        obj.reject!{ |l| b.call(l) }
+      plugins.each_with_object(content) do |rejector, obj|
+        obj.reject!{ |l| rejector.call(l) }
       end
     end
 
     def modify_lines(content, plugins = Plugins::MODIFICATIONS)
-      plugins.each_with_object(content) do |b, obj|
-        b.call(obj)
+      plugins.each_with_object(content) do |transformer, obj|
+        transformer.call(obj)
       end
     end
 
