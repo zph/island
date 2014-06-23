@@ -83,8 +83,8 @@ module Island
     end
 
     def modify_lines(content, plugins = Plugins::MODIFICATIONS)
-      plugins.each_with_object(content) do |transformer, obj|
-        transformer.call(obj)
+      plugins.each_with_object(content) do |modifier, obj|
+        modifier.call(obj)
       end
     end
 
