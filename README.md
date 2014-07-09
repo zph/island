@@ -2,10 +2,9 @@
 
 `no one is an island`
 
-But scripts should be.
+But scripts should be. At least the ones where you want to rely on them, not need to install in each ruby version, and make sure they're inside each Gemfile if executed from somewhere that bundler's active.
 
-Do we need the right version of Perl installed to use ack? No, it's self contained.
-Do we need the right version of Golang installed to use those tools? No, self contained.
+Do we need the ack perl module installed to use ack? No, it's self contained.
 
 Shouldn't ruby have a simple way to generate standalone scripts? Island thinks so and will help.
 
@@ -27,7 +26,19 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    Checkout `examples/*`.
+
+    The basics are glob your necessary files names, including dependencies.
+
+    Pass that info along with some lambdas for rejecting certain lines.
+
+    Write it out to whatever script name you want.
+
+## Motivation for Project
+
+    I saw people re-implementing this same behavior, and after doing it a couple times myself, wanted a better way.
+
+    The project is young, but I've used it to create a couple standalone scripts from gems that have a couple dependencies.  Auto-dependency resolution will make it much nicer in the future.
 
 ## TODO
 
