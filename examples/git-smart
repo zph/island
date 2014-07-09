@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'island'
+
+bins = ["git-smart-pull", "git-smart-merge", "git-smart-log"]
+
+bins.each do |bin|
+
+  repo = "fixtures/git-smart"
+  # Files and order
+  globs = [
+            "#{repo}/lib/**/*.rb",
+            "#{repo}/bin/#{bin}",
+          ]
+
+  files = globs.flat_map do |g|
+    Dir.glob(g)
+  end
+
+  files.insert(0, files.grep(%r(lib/git-smart[\./])).reverse)
+  files.insert(0, "https://raw.githubusercontent.com/fazibear/colorize/master/lib/colorize.rb")
+
+  pmap_reject    = ->(line){ !!(line[/require ['"]git-smart/] || line[/require ['"]colorize/]) }
+  self_reference = ->(line){ !!(line[/require ['"]git-smart/] || line[/\.\.\/lib\/infect/]) }
+  reject_lines = [Island::Plugins::SHABANG, pmap_reject, self_reference]
+
+  content = Island::Creator.call(files.flatten, rejects: reject_lines)
+  File.write(File.join("standalones", bin), content)
+end

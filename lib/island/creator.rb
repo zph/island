@@ -1,10 +1,12 @@
+require 'open-uri'
+
 module Island
 
   class Creator
     attr_accessor :files
 
     def self.call(files, opts={})
-      files                = Set.new(files)
+      files                = Set.new(files.flatten)
       rejects              = opts.fetch(:rejects)    { Plugins::REJECTIONS }
       mods                 = opts.fetch(:modifications) { Plugins::MODIFICATIONS }
       creator              = new(files)
@@ -68,11 +70,11 @@ module Island
     end
 
     def initialize(files)
-      @files = files
+      @files = Set.new(files.flatten)
     end
 
     def read_content(filenames = files)
-      Hash[*filenames.flat_map { |z| [z, File.open(z).readlines.map(&:chomp)] }]
+      Hash[*filenames.flat_map { |z| [z, open(z).readlines.map(&:chomp)] }]
     end
 
     def reject_line(content, plugins = Plugins::REJECTIONS)

@@ -15,6 +15,8 @@ files = globs.flat_map do |g|
   Dir.glob(g)
 end
 
+files.insert(0, "https://raw.githubusercontent.com/fazibear/colorize/master/lib/colorize.rb")
+
 pmap_reject    = ->(line){ !!line[/require 'pmap/] }
 self_reference = ->(line){ !! (line[/require 'infect/] || line[/\.\.\/lib\/infect/]) }
 reject_lines = [Island::Plugins::SHABANG, pmap_reject, self_reference]
