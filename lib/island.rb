@@ -1,4 +1,4 @@
-require "island/version"
+require 'island/version'
 require 'island/plugins'
 require 'island/creator'
 

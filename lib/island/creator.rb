@@ -7,7 +7,7 @@ module Island
 
     def self.call(files, opts={})
       files                = Set.new(files.flatten)
-      rejects              = opts.fetch(:rejects)    { Plugins::REJECTIONS }
+      rejects              = opts.fetch(:rejects)       { Plugins::REJECTIONS }
       mods                 = opts.fetch(:modifications) { Plugins::MODIFICATIONS }
       creator              = new(files)
       files_hash           = creator.read_content
@@ -50,7 +50,7 @@ module Island
 
     def requires(content)
       reqs = content.select { |i| i[/^\s?require/]}
-                    .map { |o| o[/['"](.*)['"]/]; match = $1 }[0..6]
+                    .map    { |o| o[/['"](.*)['"]/]; match = $1 }[0..6]
       files_and_content = reqs.map { |o| stdlib?(o) }.flatten
       Hash[*files_and_content]
     end
@@ -91,7 +91,7 @@ module Island
     end
 
     def join_lines(content)
-      content.join("\n") + "\n"
+      content.join("\n").insert(-1, "\n")
     end
   end
 end
