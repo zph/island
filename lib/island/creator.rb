@@ -7,8 +7,8 @@ module Island
 
     def self.call(files, opts={})
       files                = Set.new(files.flatten)
-      rejects              = opts.fetch(:rejects)       { Plugins::REJECTIONS }
-      mods                 = opts.fetch(:modifications) { Plugins::MODIFICATIONS }
+      rejects              = Set.new(opts.fetch(:rejects)       { Plugins::REJECTIONS }.flatten)
+      mods                 = Set.new(opts.fetch(:modifications) { Plugins::MODIFICATIONS }.flatten)
       creator              = new(files)
       files_hash           = creator.read_content
       files_hash           = creator.alter_each_file(files_hash)
@@ -42,6 +42,8 @@ module Island
         found = files.grep(/#{line}/)
         if found.empty?
           warn "Please include #{line} in files list"
+          warn "Perhaps #{Dir.glob("**/#{line}.rb")}"
+          warn "And then add a reject rule for /require.*#{line}/"
           exit(1)
         end
         found
@@ -50,7 +52,7 @@ module Island
 
     def requires(content)
       reqs = content.select { |i| i[/^\s?require/]}
-                    .map    { |o| o[/['"](.*)['"]/]; match = $1 }[0..6]
+                    .map    { |o| o[/['"](.*)['"]/]; match = $1 }
       files_and_content = reqs.map { |o| stdlib?(o) }.flatten
       Hash[*files_and_content]
     end

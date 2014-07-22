@@ -1,9 +1,14 @@
 module Island
 
   module Plugins
+    def self.require_line(term)
+      ->(line){ !! line[/require ['"]#{term}/] }
+    end
+
     SHABANG        = ->(line){ !!line[/^#!\//] }
     NEW_SHABANG    = "#!/usr/bin/env ruby\n"
     ADD_SHABANG    = ->(c){ c.insert(0, NEW_SHABANG) }
+    LOAD_PATH      = ->(line){ !! line[/^\s?\$:/] }
     ADD_GENERATED_CODE_DISCLAIMER = ->(c) do
       txt =<<-EOF.gsub(/^\s*/, '')
       #########################################################
@@ -15,7 +20,7 @@ module Island
     end
 
     MODIFICATIONS = [ADD_SHABANG, ADD_GENERATED_CODE_DISCLAIMER]
-    REJECTIONS    = [SHABANG]
+    REJECTIONS    = [SHABANG, LOAD_PATH]
   end
 
 end

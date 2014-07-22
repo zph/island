@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'island'
+
+gem_name = "ghost"
+path = "fixtures/#{gem_name}"
+bins = [gem_name]
+
+bins.each do |bin|
+  repo = File.expand_path(path)
+
+  # Add basic globs lib/ bin/bin_name
+  globs = Island::Globber.default(repo, bin)
+
+  # Convert globs into paths
+  files = Island::Globber.call(gem_name, globs)
+
+  # Add dependency
+  files.insert(0, "fixtures/ghost/vendor/ruby/2.1.0/gems/unindent-1.0/lib/unindent.rb")
+
+  plugs = Island::Plugins
+  # Establish lambdas used for rejecting lines
+  reject_lines = [plugs::REJECTIONS, plugs.require_line(gem_name), plugs.require_line("unindent")]
+
+  content = Island::Creator.call(files, rejects: reject_lines)
+  output_file = File.join("standalones", bin)
+  File.write(output_file, content)
+  Island::Validator.call(output_file)
+end
